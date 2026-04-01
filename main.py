@@ -30,13 +30,13 @@ async def start_button_handler(message: Message):
 @dp.message(lambda message: message.text == "🌐 Открыть сайт")
 async def open_site_handler(message: Message):
     await message.answer(
-        "Отлично! Теперь вы можете открыть сайт:",
+        "Нажмите кнопку ниже, чтобы открыть сайт в Telegram:",
         reply_markup=get_site_webapp_keyboard()
     )
 
 # Хендлер для кнопки "❓ Помощь"
-@dp.message(lambda message: message.text == "ℹ️ Помощь")
-async def help_button_handler(message: Message):
+@dp.message(lambda message: message.text == "❓ Помощь")
+async def help_handler(message: Message):
     await message.answer(
         "Доступные действия:\n"
         "• Открыть сайт — через Web App\n"
@@ -46,22 +46,18 @@ async def help_button_handler(message: Message):
     )
 
 # Хендлер для кнопки "ℹ️ О нас"
-@dp.message(lambda message: message.text == "📝 О нас")
-async def about_button_handler(message: Message):
+@dp.message(lambda message: message.text == "ℹ️ О нас")
+async def about_handler(message: Message):
     await message.answer(
-        "Этот бот создан для демонстрации возможностей  Urek-Mazino.\n"
+        "Этот бот создан для демонстрации возможностей Urek-Mazino.\n"
         "Версия 1.0\n\n"
         "Автор: Urek-Mazino"
     )
-# Обработка callback-запросов (на случай инлайн-кнопок)
+
+# Обработка callback-запросов
 @dp.callback_query()
 async def callback_handler(callback: CallbackQuery):
     await callback.answer("Это демонстрационное сообщение")
-
-# Отладочный хендлер: ловит все остальные текстовые сообщения
-@dp.message()
-async def debug_all_messages(message: Message):
-    logging.info(f"Получено сообщение: {message.text}")
 
 async def main():
     await dp.start_polling(bot)
