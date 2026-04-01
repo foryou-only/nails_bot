@@ -27,8 +27,8 @@ async def start_button_handler(message: Message):
     )
 
 # Хендлер для кнопки "🌐 Открыть сайт"
-async def start_button_handler(message: Message):
-    # Здесь можно показать инлайн-кнопку с сайтом
+@dp.message(lambda message: message.text == "🌐 Открыть сайт")
+async def open_site_handler(message: Message):
     await message.answer(
         "Отлично! Теперь вы можете открыть сайт:",
         reply_markup=get_site_webapp_keyboard()
