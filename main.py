@@ -27,10 +27,10 @@ async def start_button_handler(message: Message):
     )
 
 # Хендлер для кнопки "🌐 Открыть сайт"
-@dp.message(lambda message: message.text == "🌐 Открыть сайт")
-async def open_site_handler(message: Message):
+async def start_button_handler(message: Message):
+    # Здесь можно показать инлайн-кнопку с сайтом
     await message.answer(
-        "Нажмите кнопку ниже, чтобы открыть сайт внутри Telegram:",
+        "Отлично! Теперь вы можете открыть сайт:",
         reply_markup=get_site_webapp_keyboard()
     )
 
@@ -49,9 +49,9 @@ async def help_button_handler(message: Message):
 @dp.message(lambda message: message.text == "📝 О нас")
 async def about_button_handler(message: Message):
     await message.answer(
-        "Этот бот создан для демонстрации возможностей aiogram.\n"
+        "Этот бот создан для демонстрации возможностей Urek-Mazino.\n"
         "Версия 1.0\n\n"
-        "Автор: ваш_никнейм"
+        "Автор: Urek-Mazino"
     )
 # Обработка callback-запросов (на случай инлайн-кнопок)
 @dp.callback_query()
