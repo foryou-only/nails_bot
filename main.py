@@ -49,7 +49,7 @@ async def help_button_handler(message: Message):
 @dp.message(lambda message: message.text == "📝 О нас")
 async def about_button_handler(message: Message):
     await message.answer(
-        "Этот бот создан для демонстрации возможностей Urek-Mazino.\n"
+        "Этот бот создан для демонстрации возможностей  Urek-Mazino.\n"
         "Версия 1.0\n\n"
         "Автор: Urek-Mazino"
     )
