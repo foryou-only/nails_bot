@@ -12,6 +12,10 @@ from config import GROUP_USERNAME
 
 dp = Dispatcher()
 
+bot = Bot(
+    token=BOT_TOKEN,
+    default=DefaultBotProperties(protect_content=True)  # 🔒 Пункт 5: защита контента
+)
 
 async def is_user_in_allowed_group(user_id: int) -> bool:
     if ALLOWED_GROUP_ID == 0:
@@ -24,10 +28,7 @@ async def is_user_in_allowed_group(user_id: int) -> bool:
     
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(
-    token=BOT_TOKEN,
-    default=DefaultBotProperties(protect_content=True)  # 🔒 Пункт 5: защита контента
-)
+
 
 
 # Подключаем роутеры
@@ -38,10 +39,18 @@ dp.include_router(bot_added.router)        # Для добавления бот�
 # Обработчики для личного чата
 @dp.message(lambda msg: msg.text == "🌐 Открыть сайт" and msg.chat.type == "private")
 async def private_open_site(message: Message):
+    if not await is_user_in_allowed_group(message.from_user.id):
+            await message.answer("❌ Доступ только участникам группы.")
+            return
     await message.answer(
         "Нажмите кнопку, чтобы открыть сайт:",
         reply_markup=get_site_webapp_keyboard()
     )
+# async def private_open_site(message: Message):
+#     await message.answer(
+#         "Нажмите кнопку, чтобы открыть сайт:",
+#         reply_markup=get_site_webapp_keyboard()
+#     )
 
 @dp.message(lambda msg: msg.text == "❓ Помощь" and msg.chat.type == "private")
 async def private_help(message: Message):
@@ -67,6 +76,7 @@ async def private_group_link(message: Message):
         await message.answer("Ссылка на группу пока не настроена. Обратитесь к администратору.")
 async def main():
     await dp.start_polling(bot)
+ 
 
 if __name__ == "__main__":
     try:
@@ -74,8 +84,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.info("Бот остановлен")
 
-        from config import GROUP_USERNAME
-
+       
 
 
     

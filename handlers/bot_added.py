@@ -2,7 +2,6 @@ from aiogram import Router, types
 from aiogram.filters import ChatMemberUpdatedFilter, IS_NOT_MEMBER, IS_MEMBER
 # from keyboards.main_keyboard import get_main_keyboard
 from keyboards.main_keyboard import get_main_keyboard_group
-
 from config import ALLOWED_GROUP_ID
 
 router = Router()
@@ -53,3 +52,5 @@ async def bot_added_to_group(event: types.ChatMemberUpdated):
         "После этого все команды из группы будут приходить вам в личку.",
         reply_markup=keyboard
     )
+
+    print("Отправляю клавиатуру в группу:", get_main_keyboard_group())
