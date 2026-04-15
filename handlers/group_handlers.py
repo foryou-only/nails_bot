@@ -11,6 +11,10 @@ router.message.filter(GroupChatFilter())
 router.message.filter(F.chat.id == ALLOWED_GROUP_ID)
 
 
+# ID закреплённого сообщения с клавиатурой для каждого чата
+# Хранится в памяти: { chat_id: message_id }
+_keyboard_message: dict[int, int] = {}
+
 async def _delete(message: types.Message, delay: float = 0):
     """Удаляет сообщение. Если задержка — ждёт сначала. Молча игнорирует ошибки."""
     try:
@@ -20,6 +24,36 @@ async def _delete(message: types.Message, delay: float = 0):
     except Exception:
         pass
 
+async def _ensure_keyboard(message: types.Message):
+    """
+    Проверяет живо ли закреплённое сообщение с клавиатурой.
+    Если нет — создаёт новое и сохраняет его ID.
+    Само сообщение содержит пробел (невидимый текст) чтобы не мусорить чат,
+    но клавиатура остаётся активной у всех участников.
+    """
+    chat_id = message.chat.id
+    existing_id = _keyboard_message.get(chat_id)
+ 
+    # Проверяем живо ли старое сообщение
+    if existing_id:
+        try:
+            await message.bot.forward_message(
+                chat_id, chat_id, existing_id
+            )
+            # Если дошли сюда — сообщение живо, удаляем форвард
+            await message.bot.delete_message(chat_id, existing_id + 1)
+            return  # клавиатура уже есть, ничего не делаем
+        except Exception:
+            pass  # сообщение удалено — создадим новое
+ 
+    # Создаём новое закреплённое сообщение с клавиатурой
+    # Используем символ нулевой ширины чтобы сообщение было почти невидимым
+    kb_msg = await message.bot.send_message(
+        chat_id,
+        "⌨️",  # минимальный текст
+        reply_markup=get_main_keyboard_group()
+    )
+    _keyboard_message[chat_id] = kb_msg.message_id
 
 async def _send_to_dm(message: types.Message, text: str, reply_markup=None):
     """
@@ -54,19 +88,20 @@ async def _send_to_dm(message: types.Message, text: str, reply_markup=None):
 
 @router.message(Command("start"))
 async def start_in_group(message: types.Message):
-    # Отправляем клавиатуру в группу, затем сразу удаляем оба сообщения
-    bot_msg = await message.answer(
-        "Выберите действие:",
+    await _delete(message)  # удаляем /start из чата
+ 
+    # Отправляем сообщение с клавиатурой — оно остаётся навсегда
+    kb_msg = await message.bot.send_message(
+        message.chat.id,
+        "⌨️ Выберите действие:",
         reply_markup=get_main_keyboard_group()
     )
-    await _delete(message)
-    await _delete(bot_msg)
-
-    await _send_to_dm(
-        message,
-        "Привет! Я бот. Используйте кнопки в группе — ответы приходят в личку."
-    )
-
+    _keyboard_message[message.chat.id] = kb_msg.message_id
+ 
+    # await _send_to_dm(
+    #     message,
+    #     "Привет! Я бот. Используйте кнопки в группе — ответы приходят в личку."
+    # )
 
 @router.message(Command("help"))
 async def help_in_group(message: types.Message):
